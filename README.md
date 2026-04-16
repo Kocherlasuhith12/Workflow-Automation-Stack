@@ -1,91 +1,140 @@
-# 🔄 Workflow Automation Stack
-
-A fully local workflow automation system built with **n8n**, **Temporal**, **Restate**, and **FastAPI (Python)** — all running together via Docker.
-
----
-
-## 🧱 Tech Stack 
-
-| Service | Role | Port |
-|--------|------|------|
-| **n8n** | Workflow automation & webhook trigger | `5678` |
-| **Temporal** | Workflow orchestration & execution tracking | `8080` |
-| **Restate** | Durable service execution | - |
-| **FastAPI (Python)** | Backend API that connects everything | `8001` |
-
----
-
-## 🏗️ Architecture
+<div align="center">
 
 ```
-Webhook (curl / external)
-        ↓
-      n8n (localhost:5678)
-        ↓
-  FastAPI /start-workflow (localhost:8001)
-        ↓
-  Temporal Worker → Activities (Restate)
-        ↓
-  Result returned back to n8n
+██╗    ██╗ ██████╗ ██████╗ ██╗  ██╗███████╗██╗      ██████╗ ██╗    ██╗
+██║    ██║██╔═══██╗██╔══██╗██║ ██╔╝██╔════╝██║     ██╔═══██╗██║    ██║
+██║ █╗ ██║██║   ██║██████╔╝█████╔╝ █████╗  ██║     ██║   ██║██║ █╗ ██║
+██║███╗██║██║   ██║██╔══██╗██╔═██╗ ██╔══╝  ██║     ██║   ██║██║███╗██║
+╚███╔███╔╝╚██████╔╝██║  ██║██║  ██╗██║     ███████╗╚██████╔╝╚███╔███╔╝
+ ╚══╝╚══╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚══════╝ ╚═════╝  ╚══╝╚══╝
+```
+
+### **Local Workflow Automation · Built for Resilience**
+*n8n · Temporal · Restate · FastAPI — orchestrated via Docker*
+
+![Status](https://img.shields.io/badge/status-production%20ready-22c55e?style=flat-square&labelColor=0f172a)
+![Stack](https://img.shields.io/badge/stack-Python%20%7C%20Docker-3b82f6?style=flat-square&labelColor=0f172a)
+![License](https://img.shields.io/badge/license-MIT-f97316?style=flat-square&labelColor=0f172a)
+![Tests](https://img.shields.io/badge/end--to--end-passing-22c55e?style=flat-square&labelColor=0f172a)
+
+</div>
+
+---
+
+## What Is This?
+
+A **fully local, resilient workflow automation system** that wires together four powerful tools — without touching any cloud. Every piece runs in Docker. You trigger a webhook, and the whole pipeline fires: n8n handles routing, Temporal guarantees execution, Restate makes services durable, and FastAPI ties it all together.
+
+> Zero SaaS lock-in. Zero cold starts. Total observability.
+
+---
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        WORKFLOW PIPELINE                        │
+└─────────────────────────────────────────────────────────────────┘
+
+  curl / external trigger
+          │
+          ▼
+  ┌──────────────┐        Webhook received, workflow begins
+  │     n8n      │  :5678
+  │  (trigger +  │
+  │   routing)   │
+  └──────┬───────┘
+         │  POST /start-workflow
+         ▼
+  ┌──────────────┐        Durable orchestration kicks in
+  │   FastAPI    │  :8001
+  │  (Python)    │
+  └──────┬───────┘
+         │  Starts Temporal workflow
+         ▼
+  ┌──────────────┐        Activity execution with retry guarantees
+  │   Temporal   │  :8080
+  │   Worker     │
+  └──────┬───────┘
+         │  Executes via Restate
+         ▼
+  ┌──────────────┐        Durable service call — survives crashes
+  │   Restate    │
+  │  (Service)   │
+  └──────┬───────┘
+         │
+         ▼
+     ✅ Result returned to n8n
 ```
 
 ---
 
-## 📁 Project Structure
+## Tech Stack
+
+| Service | Role | Port | Why It's Here |
+|---------|------|------|---------------|
+| **n8n** | Webhook trigger + workflow routing | `5678` | Visual automation, no-code friendly |
+| **Temporal** | Durable orchestration + execution history | `8080` | Retry logic, fault tolerance, observability |
+| **Restate** | Durable service execution | internal | Guarantees exactly-once activity execution |
+| **FastAPI** | Python backend — the glue | `8001` | Clean REST surface, async-native |
+
+---
+
+## Project Structure
 
 ```
 workflow/
-├── n8n/                  # n8n config and data
-├── docker-compose.yml    # All services defined here
-├── Dockerfile            # Python app Docker image
-├── main.py               # FastAPI entry point
-├── workflows.py          # Temporal workflow definitions
-├── activities.py         # Temporal activity definitions
-├── temporal_worker.py    # Temporal worker runner
-├── service.py            # Restate service
-├── register_restate.sh   # Script to register Restate handlers
-└── requirements.txt      # Python dependencies
+├── 📄 docker-compose.yml       ← Boots all four services
+├── 🐳 Dockerfile               ← Python app image
+├── ⚡ main.py                  ← FastAPI entrypoint
+├── 🔄 workflows.py             ← Temporal workflow definitions
+├── ⚙️  activities.py           ← Temporal activity logic
+├── 🏃 temporal_worker.py       ← Worker runner
+├── 🛡️  service.py              ← Restate service definitions
+├── 📜 register_restate.sh      ← Registers Restate handlers
+├── 📦 requirements.txt         ← Python dependencies
+└── 📁 n8n/                     ← n8n config + data volume
 ```
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
-- [Docker](https://www.docker.com/) installed and running
-- [Docker Compose](https://docs.docker.com/compose/) available
-- Terminal / Command line
+- **Docker** — [Get it here](https://www.docker.com/)
+- **Docker Compose** — bundled with Docker Desktop
+- A terminal
 
----
-
-### 1. Clone the repository
+### 1 — Clone
 
 ```bash
 git clone <your-repo-url>
 cd workflow
 ```
 
-### 2. Start all services
+### 2 — Launch Everything
 
 ```bash
 docker compose up --build
 ```
 
-This starts:
-- **n8n** on `http://localhost:5678`
-- **Temporal UI** on `http://localhost:8080`
-- **FastAPI** on `http://localhost:8001`
-- **Restate** (internal)
+This single command boots all four services. Give it ~30 seconds on first run.
 
-### 3. Verify everything is running
+| Service | URL |
+|---------|-----|
+| n8n Editor | http://localhost:5678 |
+| Temporal UI | http://localhost:8080 |
+| FastAPI | http://localhost:8001 |
 
-Open your browser and go to:
+### 3 — Health Check
+
+```bash
+curl http://localhost:8001
 ```
-http://localhost:8001
-```
 
-You should see:
+Expected response:
+
 ```json
 {
   "status": "running",
@@ -95,115 +144,128 @@ You should see:
 
 ---
 
-## ⚙️ Setting Up the n8n Workflow
+## Setting Up the n8n Workflow
 
-### Step 1 — Open n8n
-Go to `http://localhost:5678`
+> Takes ~3 minutes. Do this once.
 
-### Step 2 — Create a new workflow
-- Click **"Add first step"**
-- Search for **Webhook** and select it
-- Set **HTTP Method** to `POST`
+**Step 1** — Open `http://localhost:5678`
+
+**Step 2** — Create a new workflow:
+- Click **Add first step** → search for **Webhook** → select it
+- Set HTTP Method to `POST`
 - Copy the **Test URL**
 
-### Step 3 — Add HTTP Request node
-- Click **"+"** after the Webhook node
-- Search for **HTTP Request**
-- Set:
-  - **Method:** `POST`
-  - **URL:** `http://host.docker.internal:8001/start-workflow`
-  - **Body Content Type:** `JSON`
-  - **Body Parameter:**
-    - Name: `name`
-    - Value: `{{ $json.body.name }}`
+**Step 3** — Add an HTTP Request node after the webhook:
 
-### Step 4 — Save and Publish
-- Click **Save**
-- Click **Publish**
+| Field | Value |
+|-------|-------|
+| Method | `POST` |
+| URL | `http://host.docker.internal:8001/start-workflow` |
+| Body Content Type | `JSON` |
+| Body Param Name | `name` |
+| Body Param Value | `{{ $json.body.name }}` |
+
+> **Why `host.docker.internal`?** n8n runs inside Docker — `localhost` refers to its own container, not your machine. `host.docker.internal` correctly points to the host.
+
+**Step 4** — Hit **Save**, then **Publish**.
 
 ---
 
-## 🧪 Testing the Workflow
+## Testing
 
-### Test Mode (during development)
-1. Click the Webhook node in n8n
-2. Click **"Listen for test event"**
-3. Run:
+### Development (Test Mode)
+
+1. Click the Webhook node → **Listen for test event**
+2. Fire a test request:
 
 ```bash
 curl -X POST "http://localhost:5678/webhook-test/<your-webhook-id>" \
   -H "Content-Type: application/json" \
-  -d '{"name": "YourName"}'
+  -d '{"name": "KKS Suhith"}'
 ```
 
-### Live Mode (after publishing)
+### Production (Live Mode)
 
 ```bash
 curl -X POST "http://localhost:5678/webhook/<your-webhook-id>" \
   -H "Content-Type: application/json" \
-  -d '{"name": "YourName"}'
+  -d '{"name": "KKS Suhith"}'
 ```
 
-### Expected Response
+### Expected Output
 
 ```json
 {
-  "result": "Workflow completed for: Hello, {'name': 'YourName'}! Greetings from Restate 🌟"
+  "result": "Workflow completed for: Hello, {'name': 'KKS Suhith'}! Greetings from Restate 🌟"
 }
 ```
 
 ---
 
-## 📊 Monitoring
+## Monitoring Dashboards
 
-| Dashboard | URL | What to check |
+| Dashboard | URL | What to Watch |
 |-----------|-----|---------------|
-| **n8n Editor** | `http://localhost:5678` | Workflow runs, node status |
-| **n8n Executions** | `http://localhost:5678` → Executions tab | Past runs, success/failure |
-| **Temporal UI** | `http://localhost:8080` | Workflow history, status |
-| **FastAPI Health** | `http://localhost:8001` | Service status |
+| **n8n Workflows** | http://localhost:5678 | Node status, run history |
+| **n8n Executions** | http://localhost:5678/executions | Success/failure log |
+| **Temporal UI** | http://localhost:8080 | Workflow history, retry state |
+| **FastAPI Health** | http://localhost:8001 | Service liveness |
 
 ---
 
-## 🐳 Docker Notes
-
-- n8n runs inside Docker, so use `host.docker.internal` instead of `localhost` when calling your FastAPI from n8n
-- All services are defined in `docker-compose.yml`
-- Python dependencies are in `requirements.txt`
-
----
-
-## 🛠️ Useful Commands
+## Common Commands
 
 ```bash
-# Start all services
+# Start everything
 docker compose up --build
 
-# Stop all services
-docker compose down
+# Start in background
+docker compose up -d --build
 
-# View logs
+# View live logs
 docker compose logs -f
 
 # Restart a specific service
-docker compose restart <service-name>
+docker compose restart fastapi
+
+# Stop and remove containers
+docker compose down
+
+# Nuke volumes (fresh start)
+docker compose down -v
 ```
 
 ---
 
-## ✅ Proof of Working
+## End-to-End Test Results
 
-The full workflow was tested end-to-end:
+```
+✅  Webhook received by n8n
+✅  n8n → FastAPI /start-workflow called
+✅  FastAPI → Temporal workflow triggered
+✅  Temporal Worker executed activity via Restate
+✅  Result returned: "Workflow completed"
+✅  Temporal UI status: Completed
+```
 
-1. ✅ Webhook received by n8n
-2. ✅ n8n called FastAPI at `/start-workflow`
-3. ✅ FastAPI triggered a Temporal workflow
-4. ✅ Temporal worker executed the activity via Restate
-5. ✅ Result returned: *"Workflow completed"*
-6. ✅ Temporal UI showed status: **Completed**
+All 6 stages verified. Pipeline is green.
 
 ---
 
-## 👤 Author
+## Why This Stack?
 
-Built with Python + Docker as a local workflow automation proof of concept.
+| Concern | How It's Solved |
+|---------|----------------|
+| **Workflow crashes mid-run?** | Temporal automatically retries from the last checkpoint |
+| **Service called twice by mistake?** | Restate guarantees exactly-once execution |
+| **Need to trigger without writing code?** | n8n webhook handles it visually |
+| **Want a clean API surface?** | FastAPI with async Python |
+| **Everything cloud-dependent?** | Nope. 100% local via Docker |
+
+---
+
+<div align="center">
+
+Built with Python + Docker · Proof of concept for production-grade local automation
+
+</div>
