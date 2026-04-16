@@ -1,0 +1,90 @@
+{
+  "name": "Weather → AI Enrich → Webhook",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [{ "field": "hours", "hoursInterval": 1 }]
+        }
+      },
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8001/enrich-weather",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "city",        "value": "Chennai" },
+            { "name": "country_code","value": "IN" },
+            { "name": "webhook_url", "value": "https://webhook.site/YOUR-UNIQUE-ID" }
+          ]
+        },
+        "options": {}
+      },
+      "name": "FastAPI — Enrich Weather",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.status }}",
+              "value2": "pipeline_complete"
+            }
+          ]
+        }
+      },
+      "name": "Check Pipeline Status",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://webhook.site/YOUR-UNIQUE-ID",
+        "sendBody": true,
+        "bodyContentType": "json",
+        "body": "={{ JSON.stringify($json.enriched_payload) }}",
+        "options": {}
+      },
+      "name": "Send to Webhook",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [900, 240]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [{ "name": "error", "value": "Pipeline failed — check FastAPI logs" }]
+        }
+      },
+      "name": "Log Failure",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [900, 400]
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [[{ "node": "FastAPI — Enrich Weather", "type": "main", "index": 0 }]]
+    },
+    "FastAPI — Enrich Weather": {
+      "main": [[{ "node": "Check Pipeline Status", "type": "main", "index": 0 }]]
+    },
+    "Check Pipeline Status": {
+      "main": [
+        [{ "node": "Send to Webhook", "type": "main", "index": 0 }],
+        [{ "node": "Log Failure",     "type": "main", "index": 0 }]
+      ]
+    }
+  }
+}
