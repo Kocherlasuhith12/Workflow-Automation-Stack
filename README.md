@@ -4,7 +4,7 @@ A fully local workflow automation system built with **n8n**, **Temporal**, **Res
 
 ---
 
-## 🧱 Tech Stack
+## 🧱 Tech Stack 
 
 | Service | Role | Port |
 |--------|------|------|
