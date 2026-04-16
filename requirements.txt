@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+temporalio
+restate-sdk
+hypercorn
+httpx
+requests
