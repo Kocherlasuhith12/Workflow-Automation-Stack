@@ -8,6 +8,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Then copy the rest of the code
 COPY . .
- 
+  
 # Default command (overridden per service in docker-compose.yml)
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8001"]
