@@ -4,7 +4,7 @@ WORKDIR /app
 
 # FIX: copy requirements FIRST so pip install is cached separately
 COPY requirements.txt . 
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt 
 
 # Then copy the rest of the code
 COPY . .
