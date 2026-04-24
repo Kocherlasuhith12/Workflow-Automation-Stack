@@ -1,5 +1,5 @@
 FROM python:3.11-slim
-
+ 
 WORKDIR /app
 
 # FIX: copy requirements FIRST so pip install is cached separately
