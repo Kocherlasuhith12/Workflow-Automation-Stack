@@ -5,7 +5,7 @@
       "parameters": {
         "rule": {
           "interval": [{ "field": "hours", "hoursInterval": 1 }]
-        }
+        } 
       },
       "name": "Schedule Trigger",
       "type": "n8n-nodes-base.scheduleTrigger",
