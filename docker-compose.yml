@@ -11,7 +11,7 @@ services:
     environment:
       - N8N_BASIC_AUTH_ACTIVE=false
       - WEBHOOK_URL=http://localhost:5678/
-    volumes:
+    volumes: 
       - ./n8n:/home/node/.n8n
     networks:
       - app-network
