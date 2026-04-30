@@ -7,7 +7,7 @@ from pydantic import BaseModel
 
 app = FastAPI()
  
-
+ 
 # ── Models ────────────────────────────────────────────────────────────────────
 
 class WeatherEnrichRequest(BaseModel):
